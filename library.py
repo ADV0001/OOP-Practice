@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-"""
+""" 
 OOP Practice - Started 12/7/24
 
 Library Catalog 
 """
 __author__ = "A. Valentine"
 
+from art import *
+import json
 
 class Book:
     def __init__(self,name,author,category,desc = None,status=None):
@@ -43,6 +45,20 @@ class Library:
             'STATUS':25
          }
 
+        self.home_message()
+
+    def home_message(self):
+        tprint("WELCOME TO THE")
+        tprint("AGAJA LIBRARY\n")
+        print("How would you like to proceed forward?")
+
+        print("1. See available Books")
+        print("2. Search for Book by Title")
+        print("3. Search for Book by Author")
+        print("4. Add book to the library")
+        print("5. Delete book from the library\n")
+
+
     def add_book(self, book):
         self.books.append(book)
         print(book.name+" has been added to the library collection")
@@ -56,7 +72,7 @@ class Library:
     def search_by_name(self,book_name):
         for book in self.books:
             if book_name == book.name:
-                 book.show()
+                 #book.show()
                  return book
             else:
                 pass
@@ -65,6 +81,7 @@ class Library:
     def search_by_author(self,author):
         for book in self.books:
             if author == book.author:
+                #book.show()
                 return book
             else:
                 pass
@@ -95,8 +112,26 @@ class Library:
         else:
             print("There was an error checking in this book. Please contact admin support.")
 
-    def delete_book(self,book_name):
-        pass
+    def delete_book(self,book):
+        self.books.remove(book)
+
+    ##Use JSON
+    def save_books_to_db(self):
+        books = []
+        for book in self.books:
+            books.append(book.__dict__)
+
+
+        with open ('books.json','w') as fout:
+            json.dump(books,fout)
+
+    ##Use JSON
+    def load_books_from_db(self):
+        with open("books.json",'r') as read_file:
+            data = json.load(read_file)
+
+            for book in data:
+                self.books.append(Book(book["name"],book["author"],book["category"], status = book["status"]))
 
     ##Formatting methods - Could potentially create own class for this (ACSII Table)
     """IF you decide to go this route then header function or table class should be able
@@ -123,21 +158,24 @@ class Library:
         col_sum = sum(self.col_headers.values()) + len(self.col_headers)+1
         print("+"+"-"*col_sum+"+")
 
+""" 
+
+12/12/24 - Next Add functionality to button inputs
+Friday Code Clean Up
+
+"""
+
 
 if __name__=="__main__":
 
-    main_library = Library("Valentine Library","156 Technology Drive")
-    book1 = Book("Manifest","Gene Jones","Self-Help")
-    book2 = Book("Door Kit","Aaron Valentine","Home Maintenance")
-    book3 = Book("Python for Data Analysis","Wes McKinney","Programming")
-    book4 = Book("Fanatical Prospecting","Jeb Blount","Sales/Business")
+    try:
 
-    main_library.add_book(book1)
-    main_library.add_book(book2)
-    main_library.add_book(book3)
-    main_library.add_book(book4)
+        main_library = Library("Valentine Library","156 Technology Drive")
+        main_library.add_book(Book("Pitch Anything","Oren Klaff","Sales"))
+        main_library.load_books_from_db()
+        main_library.show_books()
 
-    main_library.show_books()
-
-    print(main_library.search_by_name(main_library.get_search_input()))
-
+    except:
+        pass
+    finally:
+        main_library.save_books_to_db()
